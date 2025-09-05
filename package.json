@@ -1,0 +1,44 @@
+{
+  "name": "rankchecker",
+  "version": "1.0.0",
+  "main": "dist-electron/main.js",
+  "author": "WWYDF <89052946+WWYDF@users.noreply.github.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn dev:electron\" \"yarn dev:frontend\"",
+    "dev:frontend": "cd frontend && yarn dev",
+    "dev:electron": "esbuild electron/main.ts --bundle --platform=node --outfile=dist-electron/main.js && electron dist-electron/main.js",
+    "build:frontend": "cd frontend && yarn build",
+    "build:electron": "esbuild electron/main.ts --bundle --platform=node --external:electron --outfile=dist-electron/main.js",
+    "build": "yarn build:frontend && yarn build:electron",
+    "dist": "yarn electron-builder --win",
+    "test": "yarn build:frontend && yarn build:electron && yarn electron dist-electron/main.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.x",
+    "electron": "^28.x",
+    "electron-builder": "^26.0.12",
+    "esbuild": "^0.x",
+    "typescript": "^5.x"
+  },
+  "build": {
+    "appId": "com.blals.rankchecker",
+    "productName": "Rankchecker",
+    "files": [
+      "dist-electron/**",
+      "frontend/dist/**",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "extraResources": [],
+    "win": {
+      "target": "nsis"
+    }
+  }
+}
