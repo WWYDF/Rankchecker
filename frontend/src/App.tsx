@@ -11,7 +11,7 @@ type RatingRow = { username: string; rating: number | null; error?: string };
 
 export default function App() {
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<FetchResult | null>(null);
+  const [data] = useState<FetchResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [recentUsers, setRecentUsers] = useState<string[] | null>(null);
@@ -39,10 +39,10 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-dvh bg-zinc-950 text-zinc-100 font-sans flex flex-col">
+    <div className="flex max-w flex-col bg-zinc-950 text-zinc-100">
       {/* Top bar */}
-      <div className="sticky top-0 border-b border-zinc-800/80 bg-zinc-950/70 backdrop-blur-md p-4">
-        <div className="mx-auto flex items-center justify-center gap-3">
+      <header className="sticky top-0 z-10 border-b border-zinc-800/80 bg-zinc-950/70 backdrop-blur-md">
+        <div className="mx-auto flex w-full max-w-screen-xl flex-wrap items-center justify-center gap-3 px-4 py-3">
           <button
             onClick={handleFetch}
             disabled={loading}
@@ -58,65 +58,49 @@ export default function App() {
             )}
           </button>
         </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-5 grid place-items-start justify-center">
-        <div className="min-w-[min(900px,94vw)] space-y-4">
-
-          {/* Status card (unchanged) */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 shadow-lg">
-            {!data && !error && <div className="text-zinc-400">Click “Fetch” to run the background task.</div>}
-            {error && <div className="text-red-300">Error: {error}</div>}
-            {data && (
-              <div className="space-y-2">
-                <div>
-                  <span className="font-semibold">Status:</span>{" "}
-                  {data.ok ? <span className="text-emerald-300">ok</span> : <span className="text-red-300">error</span>}
-                </div>
-                <div><span className="font-semibold">Fetched At:</span> {data.fetchedAt}</div>
-                <div className="mt-2"><span className="font-semibold">Message:</span> {data.payload?.message ?? "—"}</div>
-              </div>
-            )}
-          </div>
-
-          {/* Debug box: usernames + ratings */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 shadow-lg">
-            <div className="font-semibold mb-2">Recent usernames & first ratings</div>
-
-            {/* Usernames list */}
-            <div className="mb-3">
-              <div className="text-sm text-zinc-400 mb-1">From OmegaStrikers.log</div>
+      </header>
+  
+      {/* Main content (scrolls if needed) */}
+      <main className="flex-1 overflow-auto">
+        <div className="mx-auto w-full max-w-screen-lg xl:max-w-screen-xl px-4 py-5">
+          <div className="grid grid-cols-1 gap-4 md:gap-6">
+            
+            {/* Usernames */}
+            <section className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 shadow-lg">
+              <h2 className="mb-2 font-semibold">Recent Usernames</h2>
               {recentUsers ? (
                 recentUsers.length ? (
-                  <ul className="list-decimal pl-6 space-y-1">
+                  <ul className="list-decimal space-y-1 pl-6">
                     {recentUsers.map((u, i) => (
                       <li key={`${u}-${i}`} className="break-all">{u}</li>
                     ))}
                   </ul>
                 ) : (
-                  <div className="text-zinc-400">No matching entries found.</div>
+                  <p className="text-zinc-400">No matching entries found.</p>
                 )
               ) : loading ? (
-                <div className="text-zinc-400">Scanning log…</div>
+                <p className="text-zinc-400">Scanning log…</p>
               ) : (
-                <div className="text-zinc-400">Click Fetch to read the log.</div>
+                <p className="text-zinc-400">Click Fetch to read the log.</p>
               )}
-            </div>
-
+              <p className="mt-3 text-xs text-zinc-500">
+                Path: %localappdata%\OmegaStrikers\Saved\Logs\OmegaStrikers.log
+              </p>
+            </section>
+  
             {/* Ratings table */}
-            <div>
-              <div className="text-sm text-zinc-400 mb-1">From API</div>
+            <section className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 shadow-lg">
+              <h2 className="mb-2 font-semibold">Recent usernames & first ratings</h2>
               {ratings ? (
                 ratings.length ? (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead className="text-zinc-400">
                         <tr>
-                          <th className="text-left font-medium py-1 pr-4">Username</th>
-                          <th className="text-left font-medium py-1">Latest Rating</th>
-                          <th className="text-left font-medium py-1">Rank</th>
-                          <th className="text-left font-medium py-1">Status</th>
+                          <th className="py-2 pr-4 text-left font-medium">Username</th>
+                          <th className="py-2 pr-4 text-left font-medium">Latest Rating</th>
+                          <th className="py-2 pr-4 text-left font-medium">Rank</th>
+                          <th className="py-2 text-left font-medium">Status</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -124,27 +108,37 @@ export default function App() {
                           let rankName = "—";
                           let rankImage: string | null = null;
                           let rankColor = "#a1a1aa";
-
+  
                           if (r.rating !== null) {
                             const { rankObject } = getRankFromLP(r.rating);
                             rankName = rankObject.name;
                             rankImage = rankObject.image;
                             rankColor = rankObject.color;
                           }
-
+  
                           return (
                             <tr key={r.username} className="border-t border-zinc-800">
-                              <td className="py-1 pr-4 break-all">{r.username}</td>
-                              <td className="py-1">{r.rating ?? "—"}</td>
-                              <td className="py-1 flex items-center gap-2">
-                                {rankImage && (
-                                  <img src={rankImage} alt={`${rankImage}`} className="h-6 w-6 shrink-0" />
-                                )}
-                                <span style={{ color: rankColor }}>{rankName}</span>
+                              <td className="min-w-0 py-2 pr-4">
+                                <div className="truncate" title={r.username}>
+                                  {r.username}
+                                </div>
                               </td>
-                              <td className="py-1 text-zinc-400">
-                                {r.error ? `error: ${r.error}` : "OK"}
+                              <td className="py-2 pr-4">{r.rating ?? "—"}</td>
+                              <td className="py-2 pr-4">
+                                <div className="flex min-w-0 items-center gap-2">
+                                  {rankImage && (
+                                    <img
+                                      src={rankImage}
+                                      alt={rankName}
+                                      className="h-6 w-6 shrink-0 max-w-full"
+                                    />
+                                  )}
+                                  <span className="truncate" style={{ color: rankColor }}>
+                                    {rankName}
+                                  </span>
+                                </div>
                               </td>
+                              <td className="py-2 text-zinc-400">{r.error ? `error: ${r.error}` : "OK"}</td>
                             </tr>
                           );
                         })}
@@ -152,18 +146,17 @@ export default function App() {
                     </table>
                   </div>
                 ) : (
-                  <div className="text-zinc-400">No ratings fetched.</div>
+                  <p className="text-zinc-400">No ratings fetched.</p>
                 )
               ) : recentUsers ? (
-                <div className="text-zinc-400">Fetching ratings…</div>
+                <p className="text-zinc-400">Fetching ratings…</p>
               ) : (
-                <div className="text-zinc-400">—</div>
+                <p className="text-zinc-400">—</p>
               )}
-            </div>
-
+            </section>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

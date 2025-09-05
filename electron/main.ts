@@ -7,8 +7,10 @@ let win: BrowserWindow | null = null;
 
 async function createWindow() {
   win = new BrowserWindow({
-    width: 900,
-    height: 600,
+    width: 980,
+    height: 640,
+    minWidth: 720,
+    minHeight: 480,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
