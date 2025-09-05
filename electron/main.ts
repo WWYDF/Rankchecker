@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import * as path from "node:path";
-import { runFetch } from "./services/fetcher";
+import { getRecentUsernames } from "./services/oslog";
+import { getPlayerRatings } from "./services/stats";
 
 let win: BrowserWindow | null = null;
 
@@ -24,14 +25,19 @@ async function createWindow() {
     // Adjust if your build outputs elsewhere
     await win.loadFile(path.join(__dirname, "../frontend/dist/index.html"));
   }
+
+  ipcMain.handle("os:getRecentUsernames", async (_evt, count?: number) => {
+    return getRecentUsernames(typeof count === "number" ? count : 4);
+  });
+
+  ipcMain.handle("players:getRatings", async (_evt, usernames: string[]) => {
+    if (!Array.isArray(usernames)) return [];
+    return getPlayerRatings(usernames);
+  });
+  
 }
 
 app.whenReady().then(() => {
-  // Background TS "job"
-  ipcMain.handle("fetch:run", async (_evt, args: unknown) => {
-    return runFetch(args);
-  });
-
   createWindow();
 
   app.on("activate", () => {
