@@ -2,9 +2,9 @@
   "name": "rankchecker",
   "version": "1.0.0",
   "main": "dist-electron/main.js",
-  "author": "WWYDF <89052946+WWYDF@users.noreply.github.com>",
+  "author": "blals <89052946+WWYDF@users.noreply.github.com>",
+  "description": "Queries CC for the ranks of each player in your current match.",
   "license": "MIT",
-  "private": true,
   "workspaces": [
     "frontend"
   ],
@@ -23,7 +23,10 @@
     "build:preload": "esbuild electron/preload.ts --bundle --platform=node --external:electron --outfile=dist-electron/preload.js",
 
     "start": "electron dist-electron/main.js",
-    "test": "yarn build && yarn start"
+    "test": "yarn build && yarn start",
+    "dist": "npm run build && electron-builder -c.artifactName=${productName}-${version}-${os}-${arch}.${ext}",
+    "dist:win": "npm run build && electron-builder --win nsis",
+    "dist:portable": "npm run build && electron-builder --win portable"
   },
   "devDependencies": {
     "concurrently": "^9.0.0",
