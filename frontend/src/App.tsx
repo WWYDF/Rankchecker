@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { getRankFromLP } from "./utils/ranks";
 
 type FetchResult = {
   ok: boolean;
@@ -15,8 +16,6 @@ export default function App() {
 
   const [recentUsers, setRecentUsers] = useState<string[] | null>(null);
   const [ratings, setRatings] = useState<RatingRow[] | null>(null);
-
-  const items = useMemo(() => data?.payload?.items ?? [], [data]);
 
   async function handleFetch() {
     setLoading(true);
@@ -115,18 +114,40 @@ export default function App() {
                       <thead className="text-zinc-400">
                         <tr>
                           <th className="text-left font-medium py-1 pr-4">Username</th>
-                          <th className="text-left font-medium py-1">First rating</th>
+                          <th className="text-left font-medium py-1">Latest Rating</th>
+                          <th className="text-left font-medium py-1">Rank</th>
                           <th className="text-left font-medium py-1">Status</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {ratings.map((r) => (
-                          <tr key={r.username} className="border-t border-zinc-800">
-                            <td className="py-1 pr-4 break-all">{r.username}</td>
-                            <td className="py-1">{r.rating ?? "—"}</td>
-                            <td className="py-1 text-zinc-400">{r.error ? `error: ${r.error}` : "ok"}</td>
-                          </tr>
-                        ))}
+                        {ratings.map((r) => {
+                          let rankName = "—";
+                          let rankImage: string | null = null;
+                          let rankColor = "#a1a1aa";
+
+                          if (r.rating !== null) {
+                            const { rankObject } = getRankFromLP(r.rating);
+                            rankName = rankObject.name;
+                            rankImage = rankObject.image;
+                            rankColor = rankObject.color;
+                          }
+
+                          return (
+                            <tr key={r.username} className="border-t border-zinc-800">
+                              <td className="py-1 pr-4 break-all">{r.username}</td>
+                              <td className="py-1">{r.rating ?? "—"}</td>
+                              <td className="py-1 flex items-center gap-2">
+                                {rankImage && (
+                                  <img src={rankImage} alt={`${rankImage}`} className="h-6 w-6 shrink-0" />
+                                )}
+                                <span style={{ color: rankColor }}>{rankName}</span>
+                              </td>
+                              <td className="py-1 text-zinc-400">
+                                {r.error ? `error: ${r.error}` : "OK"}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
