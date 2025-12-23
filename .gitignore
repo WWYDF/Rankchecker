@@ -1,5 +1,4 @@
-/frontend/node_modules
-/node_modules
-/dist-electron
-/frontend/dist
-/dist
+node_modules
+src/vite-env.d.ts
+pnpm-lock.yaml
+pnpm-workspace.yaml

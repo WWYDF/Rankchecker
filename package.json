@@ -1,56 +1,31 @@
 {
   "name": "rankchecker",
-  "version": "1.0.0",
-  "main": "dist-electron/main.js",
-  "author": "blals <89052946+WWYDF@users.noreply.github.com>",
-  "description": "Queries CC for the ranks of each player in your current match.",
-  "license": "MIT",
-  "workspaces": [
-    "frontend"
-  ],
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
   "scripts": {
-    "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:electron\"",
-    "dev:renderer": "cd frontend && vite",
-    "dev:electron": "concurrently -k \"npm:watch:preload\" \"npm:watch:main\" \"wait-on http://localhost:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron dist-electron/main.js\"",
-
-    "watch:main": "esbuild electron/main.ts --bundle --platform=node --external:electron --outfile=dist-electron/main.js --sourcemap --watch",
-    "watch:preload": "esbuild electron/preload.ts --bundle --platform=node --external:electron --outfile=dist-electron/preload.js --sourcemap --watch",
-
-    "build": "npm run build:renderer && npm run build:electron",
-    "build:renderer": "cd frontend && vite build",
-    "build:electron": "npm run build:main && npm run build:preload",
-    "build:main": "esbuild electron/main.ts --bundle --platform=node --external:electron --outfile=dist-electron/main.js",
-    "build:preload": "esbuild electron/preload.ts --bundle --platform=node --external:electron --outfile=dist-electron/preload.js",
-
-    "start": "electron dist-electron/main.js",
-    "test": "yarn build && yarn start",
-    "dist": "npm run build && electron-builder -c.artifactName=${productName}-${version}-${os}-${arch}.${ext}",
-    "dist:win": "npm run build && electron-builder --win nsis",
-    "dist:portable": "npm run build && electron-builder --win portable"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@heroui/react": "^2.8.7",
+    "@tailwindcss/vite": "^4.1.18",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-opener": "^2",
+    "framer-motion": "^12.23.26",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "concurrently": "^9.0.0",
-    "cross-env": "^7.0.3",
-    "wait-on": "^7.0.1",
-    "esbuild": "^0.23.0",
-    "electron": "^31.0.0",
-    "electron-builder": "^26.0.12",
-    "typescript": "^5.x"
-  },
-  "build": {
-    "appId": "com.blals.rankchecker",
-    "productName": "Rankchecker",
-    "files": [
-      "dist-electron/**",
-      "frontend/dist/**",
-      "package.json"
-    ],
-    "directories": {
-      "buildResources": "assets"
-    },
-    "extraResources": [],
-    "win": {
-      "target": "nsis"
-    }
+    "@tauri-apps/cli": "^2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "autoprefixer": "^10.4.23",
+    "tailwindcss": "^4.1.18",
+    "typescript": "~5.8.3",
+    "vite": "^7.0.4"
   }
 }
