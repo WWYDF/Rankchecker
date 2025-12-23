@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Card, CardBody } from '@heroui/react';
 import { getRankFromLP } from '../core/utilities/ranks';
 import { SimplifiedPlayer } from '../types/simplified';
+import RankIcon from './Rank';
 
 interface PlayerCardProps {
   player: SimplifiedPlayer;
@@ -25,12 +26,8 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
             <div className="shrink-0">
               <div 
                 className="w-16 h-16 rounded-lg flex items-center justify-center text-2xl font-bold"
-                style={{ 
-                  background: `linear-gradient(135deg, ${rankInfo.color}40, ${rankInfo.color}20)`,
-                  border: `2px solid ${rankInfo.color}60`
-                }}
               >
-                {rankInfo.name.charAt(0)}
+                <RankIcon rating={player.ratings[0].rating} size='lg' />
               </div>
             </div>
             

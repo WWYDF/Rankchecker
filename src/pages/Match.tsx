@@ -1,15 +1,16 @@
 import { motion } from 'framer-motion';
 import { SimplifiedPlayer } from '../types/simplified';
 import { PlayerCard } from '../components/PlayerCard';
+import { ShieldIcon, SwordIcon } from '@phosphor-icons/react';
 
 // Mock data for now
 const mockPlayers: SimplifiedPlayer[] = [
-  { playerId: 'sdasddsasdadsdsadsa', username: 'Player1', ratings: [{ rating: 2150, rank: 453 }] },
-  { playerId: 'sdasddsasdadsdsadsa2', username: 'Player2', ratings: [{ rating: 2150, rank: 453 }] },
-  { playerId: 'sdasddsasdadsdsadsa3', username: 'Player3', ratings: [{ rating: 2150, rank: 453 }] },
-  { playerId: 'sdasddsasdadsdsadsa4', username: 'Player4', ratings: [{ rating: 2150, rank: 453 }] },
-  { playerId: 'sdasddsasdadsdsadsa5', username: 'Player5', ratings: [{ rating: 2150, rank: 453 }] },
-  { playerId: 'sdasddsasdadsdsadsa6', username: 'Player6', ratings: [{ rating: 2150, rank: 453 }] },
+  { playerId: 'sdasddsasdadsdsadsa', username: 'Player1', ratings: [{ rating: 3001, rank: 1 }] },
+  { playerId: 'sdasddsasdadsdsadsa2', username: 'Player2', ratings: [{ rating: 2950, rank: 58 }] },
+  { playerId: 'sdasddsasdadsdsadsa3', username: 'Player3', ratings: [{ rating: 2830, rank: 253 }] },
+  { playerId: 'sdasddsasdadsdsadsa4', username: 'Player4', ratings: [{ rating: 2500, rank: 790 }] },
+  { playerId: 'sdasddsasdadsdsadsa5', username: 'Player5', ratings: [{ rating: 2150, rank: 1130 }] },
+  { playerId: 'sdasddsasdadsdsadsa6', username: 'Player6', ratings: [{ rating: 1900, rank: 2248 }] },
 ];
 
 export function MatchPage() {
@@ -39,7 +40,7 @@ export function MatchPage() {
               className="mb-4"
             >
               <h2 className="text-xl font-semibold text-blue-400 mb-4 flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                <ShieldIcon weight='duotone' />
                 Your Team
               </h2>
             </motion.div>
@@ -59,7 +60,7 @@ export function MatchPage() {
               className="mb-4"
             >
               <h2 className="text-xl font-semibold text-red-400 mb-4 flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <SwordIcon weight='duotone' />
                 Enemy Team
               </h2>
             </motion.div>
