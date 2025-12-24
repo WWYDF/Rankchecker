@@ -4,3 +4,4 @@ pnpm-lock.yaml
 pnpm-workspace.yaml
 public/.DS_Store
 .DS_Store
+src-tauri/Cargo.lock
