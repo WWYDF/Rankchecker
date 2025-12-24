@@ -30,9 +30,10 @@ export async function usernameQuery(username: string): Promise<UserQuery | null>
   }
 }
 
-export async function rankQuery(playerId: string): Promise<RankedQuery | null> {
+export async function rankQuery(playerId: string | undefined): Promise<RankedQuery | null> {
   const identity = await fetchAuth();
   if (!identity) return null;
+  if (!playerId) return null;
   
   try {
     const res = await fetch(`${OdyAPI}/ranked/leaderboard/search/${playerId}?entriesBefore=0&entriesAfter=0`, {

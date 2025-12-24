@@ -9,6 +9,7 @@
     "core:default",
     "opener:default",
     "fs:default",
-    "os:default"
+    "os:default",
+    "process:default"
   ]
 }

@@ -1,25 +1,55 @@
 import { useState } from 'react';
 import { HeroUIProvider } from '@heroui/react';
+import { RankedQuery } from './types/odyssey';
+import { UsernameInputPage } from './pages/InputUsers';
 import { MatchPage } from './pages/Match';
-import { WaitingPage } from './pages/Waiting';
+import { rankQuery, usernameQuery } from './core/utilities/upstream';
+import { exit } from '@tauri-apps/plugin-process';
 
 function App() {
-  // This will be driven by the monitor hook later
-  const [inMatch, setInMatch] = useState(false);
+  const [currentView, setCurrentView] = useState<'input' | 'loading' | 'match'>('input');
+  const [playerData, setPlayerData] = useState<RankedQuery[]>([]);
+
+  const handleUsernameSubmit = async (usernames: string[]) => {
+    setCurrentView('loading');
+
+    try {
+      const userObjects = await Promise.all(
+        usernames.map(username => usernameQuery(username))
+      );
+
+      const userRatings = await Promise.all(
+        userObjects.map(user => rankQuery(user?.playerId))
+      )
+
+      const cleaned = userRatings.filter((item): item is RankedQuery => item !== null);
+
+      if (!userRatings) { await exit(12) };
+
+      setPlayerData(cleaned);
+      setCurrentView('match');
+    } catch (error) {
+      console.error('Failed to fetch player data:', error);
+      // Handle error - maybe show an error page or go back to input
+      setCurrentView('input');
+    }
+  };
 
   return (
     <HeroUIProvider>
       <div className="min-h-screen">
-        {inMatch ? <MatchPage /> : <WaitingPage />}
+        {currentView === 'input' && (
+          <UsernameInputPage onSubmit={handleUsernameSubmit} />
+        )}
+        
+        {currentView === 'loading' && (
+          <MatchPage players={[]} isLoading={true} />
+        )}
+        
+        {currentView === 'match' && (
+          <MatchPage players={playerData} isLoading={false} />
+        )}
       </div>
-      
-      {/* toggle for dev, remove in prod lol */}
-      <button
-        onClick={() => setInMatch(!inMatch)}
-        className="fixed top-4 right-4 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm z-50 hover:bg-purple-700 transition"
-      >
-        Toggle View
-      </button>
     </HeroUIProvider>
   );
 }

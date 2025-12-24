@@ -1,78 +1,58 @@
-import { motion } from 'framer-motion';
-import { SimplifiedPlayer } from '../types/simplified';
-import { PlayerCard } from '../components/PlayerCard';
-import { ShieldIcon, SwordIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { RankedQuery } from '../types/odyssey';
+import { PlayerCard } from '../components/PlayerCard';
+import { SwordIcon } from '@phosphor-icons/react';
 import { CreditsModal } from '../components/Credits';
+import { Spinner } from '@heroui/react';
 
-// Mock data for now
-const mockPlayers: SimplifiedPlayer[] = [
-  { playerId: 'sdasddsasdadsdsadsa', username: 'Player1', ratings: [{ rating: 3001, rank: 1 }] },
-  { playerId: 'sdasddsasdadsdsadsa2', username: 'Player2', ratings: [{ rating: 2950, rank: 58 }] },
-  { playerId: 'sdasddsasdadsdsadsa3', username: 'Player3', ratings: [{ rating: 2830, rank: 253 }] },
-  { playerId: 'sdasddsasdadsdsadsa4', username: 'Player4', ratings: [{ rating: 2500, rank: 790 }] },
-  { playerId: 'sdasddsasdadsdsadsa5', username: 'Player5', ratings: [{ rating: 2150, rank: 1130 }] },
-  { playerId: 'sdasddsasdadsdsadsa6', username: 'Player6', ratings: [{ rating: 1900, rank: 2248 }] },
-];
+interface MatchPageProps {
+  players: RankedQuery[];
+  isLoading?: boolean;
+}
 
-export function MatchPage() {
+export function MatchPage({ players, isLoading = false }: MatchPageProps) {
   const [isCreditsOpen, setCreditsOpen] = useState(false);
-  const team1 = mockPlayers.slice(0, 3);
-  const team2 = mockPlayers.slice(3, 6);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-slate-900 via-slate-800 to-slate-900">
+        <Spinner size="lg" color="primary" />
+        <p className="text-white mt-4 text-lg">Loading player data...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8 mt-4"
         >
-          <h1 className="text-3xl font-bold text-white mb-2">Match Information</h1>
-          <p className="text-slate-400">Player rankings and statistics</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Player Information</h1>
+          <p className="text-slate-400">Enemy team rankings and statistics</p>
         </motion.div>
 
-        {/* Teams Grid */}
-        <div className="grid md:grid-cols-2 gap-6 mb-16">
-          {/* Team 1 */}
-          <div>
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="mb-4"
-            >
-              <h2 className="text-xl font-semibold text-blue-400 mb-4 flex items-center gap-2">
-                <ShieldIcon weight='duotone' />
-                Your Team
-              </h2>
-            </motion.div>
-            
-            <div className="space-y-3">
-              {team1.map((player, index) => (
-                <PlayerCard key={player.username} player={player} index={index} />
-              ))}
-            </div>
-          </div>
-
-          {/* Team 2 */}
-          <div>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="mb-4"
-            >
-              <h2 className="text-xl font-semibold text-red-400 mb-4 flex items-center gap-2">
-                <SwordIcon weight='duotone' />
-                Enemy Team
-              </h2>
-            </motion.div>
-            
-            <div className="space-y-3">
-              {team2.map((player, index) => (
-                <PlayerCard key={player.username} player={player} index={index + 3} />
-              ))}
-            </div>
+        {/* Enemy Team */}
+        <div className="mb-16">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="mb-4"
+          >
+            <h2 className="text-xl font-semibold text-red-400 mb-4 flex items-center gap-2">
+              <SwordIcon weight='duotone' size={24} />
+              Enemy Team
+            </h2>
+          </motion.div>
+          
+          <div className="space-y-3">
+            {players.map((player, index) => (
+              <PlayerCard key={player.playerId} player={player} index={index} />
+            ))}
           </div>
         </div>
 
@@ -81,7 +61,7 @@ export function MatchPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="bottom-0 left-0 right-0 py-4"
+          className="py-4"
         >
           <div className="flex items-center justify-center gap-6 text-sm">
             <a 

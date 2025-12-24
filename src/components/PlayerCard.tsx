@@ -1,17 +1,20 @@
 import { motion } from 'framer-motion';
 import { Card, CardBody } from '@heroui/react';
+import { RankedQuery } from '../types/odyssey';
 import { getRankFromLP } from '../core/utilities/ranks';
-import { SimplifiedPlayer } from '../types/simplified';
 import RankIcon from './Rank';
 
 interface PlayerCardProps {
-  player: SimplifiedPlayer;
+  player: RankedQuery;
   index: number;
 }
 
 export function PlayerCard({ player, index }: PlayerCardProps) {
-  const lastSnapshot = player.ratings[0];
-  const rankInfo = getRankFromLP(lastSnapshot.rating).rankObject;
+  const nearbyRanks = getRankFromLP(player.rating);
+  const rankInfo = nearbyRanks.rankObject;
+  const winRate = player.games > 0 
+    ? ((player.wins / player.games) * 100).toFixed(1)
+    : '0.0';
   
   return (
     <motion.div
@@ -22,12 +25,11 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
       <Card className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 hover:border-slate-600 transition-colors">
         <CardBody className="p-4">
           <div className="flex items-center gap-4">
-            {/* Rank Image Placeholder */}
             <div className="shrink-0">
               <div 
                 className="w-16 h-16 rounded-lg flex items-center justify-center text-2xl font-bold"
               >
-                <RankIcon rating={player.ratings[0].rating} size='lg' />
+                <RankIcon rating={player.rating} size='lg' />
               </div>
             </div>
             
@@ -47,14 +49,23 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
                 >
                   {rankInfo.name}
                 </span>
+                <span className="text-xs text-slate-400">
+                  {player.topRole}
+                </span>
               </div>
               
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                 <div className="text-slate-400">
-                  Rating: <span className="text-white font-medium">{lastSnapshot.rating}</span>
+                  Rating: <span className="text-white font-medium">{player.rating}</span>
                 </div>
                 <div className="text-slate-400">
-                  Rank: <span className="text-white font-medium">#{lastSnapshot.rank}</span>
+                  Rank: <span className="text-white font-medium">#{player.rank.toLocaleString()}</span>
+                </div>
+                <div className="text-slate-400">
+                  W/L: <span className="text-white font-medium">{player.wins}/{player.losses}</span>
+                </div>
+                <div className="text-slate-400">
+                  WR: <span className="text-white font-medium">{winRate}%</span>
                 </div>
               </div>
             </div>
