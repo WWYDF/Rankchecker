@@ -4,6 +4,7 @@ import { RankedQuery } from '../types/odyssey';
 import { getRankFromLP } from '../core/utilities/ranks';
 import RankIcon from './Rank';
 import { ShieldIcon, SwordIcon } from '@phosphor-icons/react';
+import { openUrl } from '@tauri-apps/plugin-opener';
 
 interface PlayerCardProps {
   player: RankedQuery;
@@ -35,7 +36,10 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
             </div>
             
             {/* Player Info */}
-            <div className="flex-1 min-w-0">
+            <button
+              onClick={async () => await openUrl(`https://clarioncorp.net/pilot/${player.username}`)}
+              className="flex-1 min-w-0 text-left cursor-pointer"
+              >
               <h3 className="text-lg font-semibold text-white truncate mb-1">
                 {player.username}
               </h3>
@@ -69,7 +73,7 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
                   Games: <span className="text-white font-medium">{player.games}</span>
                 </div>
               </div>
-            </div>
+            </button>
           </div>
         </CardBody>
       </Card>
