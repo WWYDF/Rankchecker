@@ -2,6 +2,8 @@ import { motion } from 'framer-motion';
 import { SimplifiedPlayer } from '../types/simplified';
 import { PlayerCard } from '../components/PlayerCard';
 import { ShieldIcon, SwordIcon } from '@phosphor-icons/react';
+import { useState } from 'react';
+import { CreditsModal } from '../components/Credits';
 
 // Mock data for now
 const mockPlayers: SimplifiedPlayer[] = [
@@ -14,9 +16,10 @@ const mockPlayers: SimplifiedPlayer[] = [
 ];
 
 export function MatchPage() {
+  const [isCreditsOpen, setCreditsOpen] = useState(false);
   const team1 = mockPlayers.slice(0, 3);
   const team2 = mockPlayers.slice(3, 6);
-  
+
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
       <div className="max-w-7xl mx-auto">
@@ -97,14 +100,19 @@ export function MatchPage() {
               (update checker l8r)
             </span>
             
-            <a 
-              href="#" 
-              className="text-slate-400 hover:underline hover:text-white transition-colors"
+            <button
+              onClick={() => setCreditsOpen(true)}
+              className="text-slate-400 hover:underline hover:text-white transition-colors cursor-pointer"
             >
               Credits
-            </a>
+            </button>
           </div>
         </motion.footer>
+
+        <CreditsModal
+          isOpen={isCreditsOpen}
+          onClose={() => setCreditsOpen(false)}
+        />
       </div>
     </div>
   );
