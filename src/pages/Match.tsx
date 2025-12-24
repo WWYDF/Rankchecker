@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { RankedQuery } from '../types/odyssey';
 import { PlayerCard } from '../components/PlayerCard';
-import { SwordIcon } from '@phosphor-icons/react';
 import { CreditsModal } from '../components/Credits';
 import { Spinner } from '@heroui/react';
 
@@ -38,17 +37,6 @@ export function MatchPage({ players, isLoading = false }: MatchPageProps) {
 
         {/* Enemy Team */}
         <div className="mb-16">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="mb-4"
-          >
-            <h2 className="text-xl font-semibold text-red-400 mb-4 flex items-center gap-2">
-              <SwordIcon weight='duotone' size={24} />
-              Enemy Team
-            </h2>
-          </motion.div>
-          
           <div className="space-y-3">
             {players.map((player, index) => (
               <PlayerCard key={player.playerId} player={player} index={index} />

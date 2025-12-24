@@ -3,6 +3,7 @@ import { Card, CardBody } from '@heroui/react';
 import { RankedQuery } from '../types/odyssey';
 import { getRankFromLP } from '../core/utilities/ranks';
 import RankIcon from './Rank';
+import { ShieldIcon, SwordIcon } from '@phosphor-icons/react';
 
 interface PlayerCardProps {
   player: RankedQuery;
@@ -49,8 +50,8 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
                 >
                   {rankInfo.name}
                 </span>
-                <span className="text-xs text-slate-400">
-                  {player.topRole}
+                <span className="text-xs text-slate-400" title={`${player.topRole} Main`} >
+                  {player.topRole == 'Forward' ? <SwordIcon size={20} weight='duotone' /> : <ShieldIcon size={20} weight='duotone' />}
                 </span>
               </div>
               
@@ -62,10 +63,10 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
                   Rank: <span className="text-white font-medium">#{player.rank.toLocaleString()}</span>
                 </div>
                 <div className="text-slate-400">
-                  W/L: <span className="text-white font-medium">{player.wins}/{player.losses}</span>
+                  WR: <span className="text-white font-medium">{winRate}%</span>
                 </div>
                 <div className="text-slate-400">
-                  WR: <span className="text-white font-medium">{winRate}%</span>
+                  Games: <span className="text-white font-medium">{player.games}</span>
                 </div>
               </div>
             </div>

@@ -1,7 +1,7 @@
 import { useState, KeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input, Button, Card, CardBody } from '@heroui/react';
-import { PlusIcon, XIcon, ArrowRightIcon } from '@phosphor-icons/react';
+import { PlusIcon, XIcon, ArrowRightIcon, UsersThreeIcon } from '@phosphor-icons/react';
 
 interface UsernameInputPageProps {
   onSubmit: (usernames: string[]) => void;
@@ -13,12 +13,12 @@ export function UsernameInputPage({ onSubmit }: UsernameInputPageProps) {
   const [error, setError] = useState('');
 
   const handleAddUsername = () => {
-    if (!currentInput.trim()) {
+    if (!currentInput) {
       setError('Please enter a username');
       return;
     }
 
-    if (usernames.includes(currentInput.trim())) {
+    if (usernames.includes(currentInput)) {
       setError('Username already added');
       return;
     }
@@ -28,7 +28,7 @@ export function UsernameInputPage({ onSubmit }: UsernameInputPageProps) {
       return;
     }
 
-    const newUsernames = [...usernames, currentInput.trim()];
+    const newUsernames = [...usernames, currentInput];
     setUsernames(newUsernames);
     setCurrentInput('');
     setError('');
@@ -74,14 +74,12 @@ export function UsernameInputPage({ onSubmit }: UsernameInputPageProps) {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            className="w-20 h-20 mx-auto mb-6 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center"
+            className="w-20 h-20 mx-auto mb-6 bg-linear-to-br from-green-500 to-lime-600 rounded-full flex items-center justify-center"
           >
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
+            <UsersThreeIcon size={50} weight='duotone' color='white'/>
           </motion.div>
-          <h1 className="text-3xl font-bold text-white mb-2">Lookup Players</h1>
-          <p className="text-slate-400">Enter 1-3 enemy usernames to check their ranks</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Quick Rank Lookup</h1>
+          <p className="text-slate-400">Enter 1-3 enemy usernames to check their ranks instantly</p>
         </div>
 
         <Card className="bg-slate-800/50 backdrop-blur-sm border border-slate-700">
@@ -105,7 +103,7 @@ export function UsernameInputPage({ onSubmit }: UsernameInputPageProps) {
                   isIconOnly
                   onClick={handleAddUsername}
                   disabled={!canAddMore}
-                  className="bg-linear-to-r from-blue-500 to-purple-600 text-white"
+                  className="bg-linear-to-r from-green-500 to-lime-600 text-white flex aspect-square rounded-xl hover:opacity-90 transition cursor-pointer"
                   size="lg"
                 >
                   <PlusIcon size={20} weight="bold" />
@@ -136,14 +134,15 @@ export function UsernameInputPage({ onSubmit }: UsernameInputPageProps) {
                     className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg border border-slate-600"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-8 h-8 rounded-full bg-linear-to-br from-red-500 to-amber-600 flex items-center justify-center text-white font-bold text-sm">
                         {index + 1}
                       </div>
                       <span className="text-white font-medium">{username}</span>
                     </div>
                     <button
                       onClick={() => handleRemoveUsername(index)}
-                      className="text-slate-400 hover:text-red-400 transition-colors"
+                      className="text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
+                      title='Remove Player'
                     >
                       <XIcon size={20} weight="bold" />
                     </button>
@@ -170,7 +169,7 @@ export function UsernameInputPage({ onSubmit }: UsernameInputPageProps) {
             <Button
               onClick={handleContinue}
               disabled={usernames.length === 0}
-              className="w-full bg-linear-to-r from-blue-500 to-purple-600 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-linear-to-r from-emerald-500 to-green-600 hover:opacity-90 transition text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex shadow-xl rounded-xl cursor-pointer"
               size="lg"
               endContent={<ArrowRightIcon size={20} weight="bold" />}
             >
