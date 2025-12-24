@@ -43,11 +43,11 @@ function App() {
         )}
         
         {currentView === 'loading' && (
-          <MatchPage players={[]} isLoading={true} />
+          <MatchPage players={[]} isLoading={true} setState={setCurrentView} />
         )}
         
         {currentView === 'match' && (
-          <MatchPage players={playerData} isLoading={false} />
+          <MatchPage players={playerData} isLoading={false} setState={setCurrentView} />
         )}
       </div>
     </HeroUIProvider>

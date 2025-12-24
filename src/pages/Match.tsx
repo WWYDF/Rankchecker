@@ -3,22 +3,24 @@ import { motion } from 'framer-motion';
 import { RankedQuery } from '../types/odyssey';
 import { PlayerCard } from '../components/PlayerCard';
 import { CreditsModal } from '../components/Credits';
-import { Spinner } from '@heroui/react';
+import { Button } from '@heroui/react';
 import { openUrl } from '@tauri-apps/plugin-opener';
+import { ArrowLeftIcon } from '@phosphor-icons/react';
+import FetchingIndicator from '../components/FetchingIndicator';
 
 interface MatchPageProps {
   players: RankedQuery[];
   isLoading?: boolean;
+  setState: (state: 'input' | 'loading' | 'match') => void;
 }
 
-export function MatchPage({ players, isLoading = false }: MatchPageProps) {
+export function MatchPage({ players, isLoading = false, setState }: MatchPageProps) {
   const [isCreditsOpen, setCreditsOpen] = useState(false);
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-slate-900 via-slate-800 to-slate-900">
-        <Spinner size="lg" color="primary" />
-        <p className="text-white mt-4 text-lg">Loading player data...</p>
+        <FetchingIndicator show={isLoading} label='Fetching data...' />
       </div>
     );
   }
@@ -37,7 +39,7 @@ export function MatchPage({ players, isLoading = false }: MatchPageProps) {
         </motion.div>
 
         {/* Enemy Team */}
-        <div className="mb-16">
+        <div className="mb-8">
           <div className="space-y-3">
             {players.map((player, index) => (
               <PlayerCard key={player.playerId} player={player} index={index} />
@@ -45,12 +47,20 @@ export function MatchPage({ players, isLoading = false }: MatchPageProps) {
           </div>
         </div>
 
+        <Button
+          onClick={() => setState('input')}
+          className="w-full bg-linear-to-r from-gray-600 to-zinc-700 hover:opacity-90 transition text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex shadow-xl rounded-xl cursor-pointer"
+          size="lg"
+          startContent={<ArrowLeftIcon size={20} weight="bold" />}
+        >
+          Back
+        </Button>
+
         {/* Footer */}
         <motion.footer
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="py-4"
+          className="py-4 mt-8"
         >
           <div className="flex items-center justify-center gap-6 text-sm">
             <button 
