@@ -9,3 +9,6 @@ export const OdyAPI = 'https://prometheus-proxy.odysseyinteractive.gg/api'
 // File Path Suffixes (after user home folder)
 export const windows_identity = 'AppData\\Local\\OmegaStrikers\\identity.json';
 export const linux_identity = '.steam/steam/steamapps/compatdata/1869590/pfx/drive_c/users/steamuser/AppData/Local/OmegaStrikers/identity.json';
+// export const macos_identity = 'Library/Application Support/CrossOver/Bottles/Omega Strikers/drive_c/users/crossover/AppData/Local/OmegaStrikers/identity.json';
+
+export const macos_identity = 'Library/Application Support/CrossOver/Bottles/Crab Champions/drive_c/users/crossover/AppData/Local/OmegaStrikers/identity.json';
