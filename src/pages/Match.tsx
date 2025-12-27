@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useOutletContext } from 'react-router-dom';
 import { PlayerCard } from '../components/PlayerCard';
-import { CreditsModal } from '../components/Credits';
 import { Button } from '@heroui/react';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { ArrowLeftIcon } from '@phosphor-icons/react';
@@ -10,7 +8,6 @@ import { AppContextType } from '../App';
 
 export function MatchPage() {
   const { playerData, navigate } = useOutletContext<AppContextType>();
-  const [isCreditsOpen, setCreditsOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
@@ -68,18 +65,13 @@ export function MatchPage() {
             </button>
 
             <button
-              onClick={() => setCreditsOpen(true)}
+              onClick={() => navigate('/credits')}
               className="text-slate-400 hover:underline hover:text-white transition-colors cursor-pointer"
             >
               Credits
             </button>
           </div>
         </motion.footer>
-
-        <CreditsModal
-          isOpen={isCreditsOpen}
-          onClose={() => setCreditsOpen(false)}
-        />
       </div>
     </div>
   );

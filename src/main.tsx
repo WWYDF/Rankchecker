@@ -4,6 +4,7 @@ import { RouterProvider, createHashRouter } from "react-router-dom";
 import App from "./App";
 import { UsernameInputPage } from "./pages/InputUsers";
 import { MatchPage } from "./pages/Match";
+import { CreditsPage } from "./pages/Credits";
 import "./index.css";
 
 const router = createHashRouter([
@@ -18,6 +19,10 @@ const router = createHashRouter([
       {
         path: "match",
         element: <MatchPage />,
+      },
+      {
+        path: "credits",
+        element: <CreditsPage />,
       },
     ],
   },
