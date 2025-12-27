@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Card, CardBody } from '@heroui/react';
+import { Card, CardContent } from '@heroui/react';
 import { RankedQuery } from '../types/odyssey';
 import { getRankFromLP } from '../core/utilities/ranks';
 import RankIcon from './Rank';
@@ -25,7 +25,7 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
       transition={{ delay: index * 0.1 }}
     >
       <Card className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 hover:border-slate-600 transition-colors">
-        <CardBody className="p-4">
+        <CardContent className="p-4">
           <div className="flex items-center gap-4">
             <div className="shrink-0">
               <div 
@@ -75,7 +75,7 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
               </div>
             </button>
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
     </motion.div>
   );

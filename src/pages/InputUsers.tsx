@@ -1,13 +1,14 @@
 import { useState, KeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Input, Button, Card, CardBody } from '@heroui/react';
+import { useOutletContext } from 'react-router-dom';
+import { Input, Button, Card, CardContent } from '@heroui/react';
 import { PlusIcon, XIcon, ArrowRightIcon, UsersThreeIcon } from '@phosphor-icons/react';
+import { AppContextType } from '../App';
+import { rankQuery, usernameQuery } from '../core/utilities/upstream';
+import { RankedQuery } from '../types/odyssey';
 
-interface UsernameInputPageProps {
-  onSubmit: (usernames: string[]) => void;
-}
-
-export function UsernameInputPage({ onSubmit }: UsernameInputPageProps) {
+export function UsernameInputPage() {
+  const { setPlayerData, navigate } = useOutletContext<AppContextType>();
   const [usernames, setUsernames] = useState<string[]>([]);
   const [currentInput, setCurrentInput] = useState('');
   const [error, setError] = useState('');
@@ -35,11 +36,29 @@ export function UsernameInputPage({ onSubmit }: UsernameInputPageProps) {
 
     // Auto-submit when 3 usernames are added
     if (newUsernames.length === 3) {
-      setTimeout(() => onSubmit(newUsernames), 500);
+      setTimeout(async () => {
+        try {
+          const userObjects = await Promise.all(
+            newUsernames.map(username => usernameQuery(username))
+          );
+
+          const userRatings = await Promise.all(
+            userObjects.map(user => rankQuery(user?.playerId))
+          );
+
+          const cleaned = userRatings.filter((item): item is RankedQuery => item !== null);
+
+          setPlayerData(cleaned);
+          navigate('/match');
+        } catch (error) {
+          console.error('Failed to fetch player data:', error);
+          setError('Failed to fetch. Please make sure your game is open.');
+        }
+      }, 500);
     }
   };
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleAddUsername();
     }
@@ -50,12 +69,29 @@ export function UsernameInputPage({ onSubmit }: UsernameInputPageProps) {
     setError('');
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (usernames.length === 0) {
       setError('Please add at least one username');
       return;
     }
-    onSubmit(usernames);
+
+    try {
+      const userObjects = await Promise.all(
+        usernames.map(username => usernameQuery(username))
+      );
+
+      const userRatings = await Promise.all(
+        userObjects.map(user => rankQuery(user?.playerId))
+      );
+
+      const cleaned = userRatings.filter((item): item is RankedQuery => item !== null);
+
+      setPlayerData(cleaned);
+      navigate('/match');
+    } catch (error) {
+      console.error('Failed to fetch player data:', error);
+      setError('Failed to fetch. Please make sure your game is open.');
+    }
   };
 
   const canAddMore = usernames.length < 3;
@@ -83,26 +119,23 @@ export function UsernameInputPage({ onSubmit }: UsernameInputPageProps) {
         </div>
 
         <Card className="bg-slate-800/50 backdrop-blur-sm border border-slate-700">
-          <CardBody className="p-6">
+          <CardContent className="p-6">
             {/* Input Section */}
             <div className="mb-6">
-              <div className="flex gap-2 mb-2">
+              <div className="flex gap-2 mb-2 justify-center items-center">
                 <Input
                   value={currentInput}
                   onChange={(e) => setCurrentInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyDown}
                   placeholder="Enter username..."
                   disabled={!canAddMore}
-                  classNames={{
-                    input: "text-white",
-                    inputWrapper: "bg-slate-700/50 border-slate-600 hover:bg-slate-700",
-                  }}
-                  size="lg"
+                  fullWidth
+                  className="text-white bg-slate-700/50 border-slate-600 hover:bg-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50"
                 />
                 <Button
                   isIconOnly
-                  onClick={handleAddUsername}
-                  disabled={!canAddMore}
+                  onPress={handleAddUsername}
+                  isDisabled={!canAddMore}
                   className="bg-linear-to-r from-green-500 to-lime-600 text-white flex aspect-square rounded-xl hover:opacity-90 transition cursor-pointer"
                   size="lg"
                 >
@@ -167,15 +200,15 @@ export function UsernameInputPage({ onSubmit }: UsernameInputPageProps) {
 
             {/* Continue Button */}
             <Button
-              onClick={handleContinue}
-              disabled={usernames.length === 0}
+              onPress={handleContinue}
+              isDisabled={usernames.length === 0}
               className="w-full bg-linear-to-r from-emerald-500 to-green-600 hover:opacity-90 transition text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex shadow-xl rounded-xl cursor-pointer"
               size="lg"
-              endContent={<ArrowRightIcon size={20} weight="bold" />}
             >
               Continue
+              <ArrowRightIcon size={20} weight="bold" />
             </Button>
-          </CardBody>
+          </CardContent>
         </Card>
       </motion.div>
     </div>

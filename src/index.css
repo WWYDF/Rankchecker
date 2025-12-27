@@ -1,1 +1,14 @@
 @import "tailwindcss";
+@import "@heroui/styles";
+
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-hero {
+    background-image: none !important;
+    background: linear-gradient(to bottom, #006400, black);
+  }
+}

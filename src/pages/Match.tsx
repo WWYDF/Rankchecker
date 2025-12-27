@@ -1,29 +1,16 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { RankedQuery } from '../types/odyssey';
+import { useOutletContext } from 'react-router-dom';
 import { PlayerCard } from '../components/PlayerCard';
 import { CreditsModal } from '../components/Credits';
 import { Button } from '@heroui/react';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { ArrowLeftIcon } from '@phosphor-icons/react';
-import FetchingIndicator from '../components/FetchingIndicator';
+import { AppContextType } from '../App';
 
-interface MatchPageProps {
-  players: RankedQuery[];
-  isLoading?: boolean;
-  setState: (state: 'input' | 'loading' | 'match') => void;
-}
-
-export function MatchPage({ players, isLoading = false, setState }: MatchPageProps) {
+export function MatchPage() {
+  const { playerData, navigate } = useOutletContext<AppContextType>();
   const [isCreditsOpen, setCreditsOpen] = useState(false);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-slate-900 via-slate-800 to-slate-900">
-        <FetchingIndicator show={isLoading} label='Fetching data...' />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
@@ -41,18 +28,18 @@ export function MatchPage({ players, isLoading = false, setState }: MatchPagePro
         {/* Enemy Team */}
         <div className="mb-8">
           <div className="space-y-3">
-            {players.map((player, index) => (
+            {playerData.map((player, index) => (
               <PlayerCard key={player.playerId} player={player} index={index} />
             ))}
           </div>
         </div>
 
         <Button
-          onClick={() => setState('input')}
+          onPress={() => navigate('/')}
           className="w-full bg-linear-to-r from-gray-600 to-zinc-700 hover:opacity-90 transition text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex shadow-xl rounded-xl cursor-pointer"
           size="lg"
-          startContent={<ArrowLeftIcon size={20} weight="bold" />}
         >
+          <ArrowLeftIcon size={20} weight="bold" />
           Back
         </Button>
 
@@ -63,7 +50,7 @@ export function MatchPage({ players, isLoading = false, setState }: MatchPagePro
           className="py-4 mt-8"
         >
           <div className="flex items-center justify-center gap-6 text-sm">
-            <button 
+            <button
               onClick={async () => await openUrl('https://github.com/WWYDF/Rankchecker')}
               className="text-slate-400 hover:underline hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
             >
@@ -72,14 +59,14 @@ export function MatchPage({ players, isLoading = false, setState }: MatchPagePro
               </svg>
               GitHub
             </button>
-            
+
             <button
               onClick={async () => await openUrl('https://github.com/WWYDF/Rankchecker/releases/latest')}
               className="text-slate-400 cursor-pointer hover:underline hover:text-white"
             >
               (update checker l8r)
             </button>
-            
+
             <button
               onClick={() => setCreditsOpen(true)}
               className="text-slate-400 hover:underline hover:text-white transition-colors cursor-pointer"

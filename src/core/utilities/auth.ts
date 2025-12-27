@@ -4,9 +4,8 @@ import { homeDir, join } from "@tauri-apps/api/path";
 import { IdentityFile } from "../../types/auth";
 import { readTextFile } from "@tauri-apps/plugin-fs";
 
-const os = platform();
-
 export async function fetchAuth(): Promise<IdentityFile | null> {
+  const os = await platform();
   let idenPath = '';
   switch (os) {
     case 'windows':
