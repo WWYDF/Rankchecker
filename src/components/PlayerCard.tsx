@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { Card, CardContent } from '@heroui/react';
 import { RankedQuery } from '../types/odyssey';
 import { getRankFromLP } from '../core/utilities/ranks';
 import RankIcon from './Rank';
@@ -14,69 +13,69 @@ interface PlayerCardProps {
 export function PlayerCard({ player, index }: PlayerCardProps) {
   const nearbyRanks = getRankFromLP(player.rating);
   const rankInfo = nearbyRanks.rankObject;
-  const winRate = player.games > 0 
+  const winRate = player.games > 0
     ? ((player.wins / player.games) * 100).toFixed(1)
     : '0.0';
-  
+
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.1 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.07, duration: 0.25 }}
     >
-      <Card className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 hover:border-slate-600 transition-colors">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="shrink-0">
-              <div 
-                className="w-16 h-16 rounded-lg flex items-center justify-center text-2xl font-bold"
-              >
-                <RankIcon rating={player.rating} size='lg' />
-              </div>
-            </div>
-            
-            {/* Player Info */}
-            <button
-              onClick={async () => await openUrl(`https://clarioncorp.net/pilot/${player.username}`)}
-              className="flex-1 min-w-0 text-left cursor-pointer"
-              >
-              <h3 className="text-lg font-semibold text-white truncate mb-1">
-                {player.username}
-              </h3>
-              
-              <div className="flex items-center gap-2 mb-2">
-                <span 
-                  className="text-sm font-medium px-2 py-0.5 rounded"
-                  style={{ 
-                    color: rankInfo.color,
-                    backgroundColor: `${rankInfo.color}20`
-                  }}
-                >
-                  {rankInfo.name}
-                </span>
-                <span className="text-xs text-slate-400" title={`${player.topRole} Main`} >
-                  {player.topRole == 'Forward' ? <SwordIcon size={20} weight='duotone' /> : <ShieldIcon size={20} weight='duotone' />}
-                </span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                <div className="text-slate-400">
-                  Rating: <span className="text-white font-medium">{player.rating}</span>
-                </div>
-                <div className="text-slate-400">
-                  Rank: <span className="text-white font-medium">#{player.rank.toLocaleString()}</span>
-                </div>
-                <div className="text-slate-400">
-                  WR: <span className="text-white font-medium">{winRate}%</span>
-                </div>
-                <div className="text-slate-400">
-                  Games: <span className="text-white font-medium">{player.games}</span>
-                </div>
-              </div>
-            </button>
+      <button
+        onClick={() => openUrl(`https://clarioncorp.net/pilot/${player.username}`)}
+        className="w-full text-left bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl p-4 transition-colors cursor-pointer group"
+      >
+        <div className="flex items-center gap-4">
+          {/* Rank icon */}
+          <div className="shrink-0">
+            <RankIcon rating={player.rating} size="lg" />
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-base font-semibold text-white truncate group-hover:text-violet-300 transition-colors">
+                {player.username}
+              </span>
+              <span
+                className="text-xs font-medium px-2 py-0.5 rounded-md shrink-0"
+                style={{
+                  color: rankInfo.color,
+                  backgroundColor: `${rankInfo.color}1A`,
+                  border: `1px solid ${rankInfo.color}30`,
+                }}
+              >
+                {rankInfo.name}
+              </span>
+              <span
+                className="text-zinc-500 shrink-0"
+                title={`${player.topRole} Main`}
+              >
+                {player.topRole === 'Forward'
+                  ? <SwordIcon size={16} weight="duotone" />
+                  : <ShieldIcon size={16} weight="duotone" />}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-4 text-xs text-zinc-500">
+              <span>
+                <span className="text-zinc-300 font-medium">{player.rating}</span> LP
+              </span>
+              <span>
+                Rank <span className="text-zinc-300 font-medium">#{player.rank.toLocaleString()}</span>
+              </span>
+              <span>
+                <span className="text-zinc-300 font-medium">{winRate}%</span> WR
+              </span>
+              <span>
+                <span className="text-zinc-300 font-medium">{player.games}</span> games
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
     </motion.div>
   );
 }

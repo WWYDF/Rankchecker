@@ -1,8 +1,13 @@
+import './core/logger'; // Initialize console interceptors before anything else
+
+document.addEventListener('contextmenu', e => e.preventDefault());
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createHashRouter } from "react-router-dom";
 import App from "./App";
-import { UsernameInputPage } from "./pages/InputUsers";
+import { GetStartedPage } from "./pages/GetStarted";
+import { MonitorPage } from "./pages/Monitor";
+import { LoadingPage } from "./pages/Loading";
 import { MatchPage } from "./pages/Match";
 import { CreditsPage } from "./pages/Credits";
 import "./index.css";
@@ -12,18 +17,11 @@ const router = createHashRouter([
     path: "/",
     element: <App />,
     children: [
-      {
-        index: true,
-        element: <UsernameInputPage />,
-      },
-      {
-        path: "match",
-        element: <MatchPage />,
-      },
-      {
-        path: "credits",
-        element: <CreditsPage />,
-      },
+      { index: true,          element: <GetStartedPage /> },
+      { path: "monitor",      element: <MonitorPage /> },
+      { path: "loading",      element: <LoadingPage /> },
+      { path: "match",        element: <MatchPage /> },
+      { path: "credits",      element: <CreditsPage /> },
     ],
   },
 ]);

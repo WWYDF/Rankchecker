@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "Omega Strikers Rank Checker",
-        "width": 1280,
-        "height": 720,
+        "width": 800,
+        "height": 900,
         "devtools": true
       }
     ],

@@ -1,101 +1,85 @@
+// Removing this for now.
+
 import { motion } from 'framer-motion';
 import { useOutletContext } from 'react-router-dom';
-import { Button, Card, CardContent } from '@heroui/react';
+import { AppButton } from '../components/ui/Button';
 import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { AppContextType } from '../App';
 import { version } from '../core/constants';
+
+const TECH = ['Tauri', 'React', 'TypeScript', 'Tailwind CSS', 'Framer Motion'];
 
 export function CreditsPage() {
   const { navigate } = useOutletContext<AppContextType>();
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8 mt-4"
-        >
-          <h1 className="text-3xl font-bold text-white mb-2">Credits</h1>
-          <p className="text-sm text-slate-400">
-            Made with ❤️ by the community
-          </p>
-        </motion.div>
+    <div className="min-h-screen flex flex-col bg-zinc-950 relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-violet-700/8 blur-[100px] rounded-full pointer-events-none" />
 
-        {/* Content Card */}
+      {/* Header */}
+      <div className="relative z-10 flex items-center px-6 py-5 border-b border-zinc-900">
+        <AppButton variant="ghost" size="sm" onClick={() => navigate(-1)} icon={<ArrowLeftIcon size={14} />}>
+          Back
+        </AppButton>
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-8 py-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          className="w-full max-w-sm space-y-8"
         >
-          <Card className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 mb-6">
-            <CardContent className="p-6 space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  Development
-                </h3>
-                <div className="space-y-2 text-slate-300">
-                  <p className='text-white font-medium'>• blals</p>
-                </div>
-              </div>
+          <div className="text-center space-y-1">
+            <h1 className="text-2xl font-bold text-white">Credits</h1>
+            <p className="text-zinc-600 text-sm">Made with love for the community</p>
+          </div>
 
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  Contributors
-                </h3>
-                <div className="space-y-2 text-slate-300">
-                  <p>• TheHypeWalrus — Testing</p>
-                </div>
-              </div>
+          {/* Credits sections */}
+          <div className="space-y-5">
+            <Section title="Development">
+              <Credit name="blals" />
+            </Section>
 
-              {/* Technologies Section */}
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  <span className="text-orange-400">🛠️</span>
-                  Built With
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 bg-slate-700/50 rounded-full text-sm text-slate-300 border border-slate-600">
-                    Tauri
-                  </span>
-                  <span className="px-3 py-1 bg-slate-700/50 rounded-full text-sm text-slate-300 border border-slate-600">
-                    React
-                  </span>
-                  <span className="px-3 py-1 bg-slate-700/50 rounded-full text-sm text-slate-300 border border-slate-600">
-                    TypeScript
-                  </span>
-                  <span className="px-3 py-1 bg-slate-700/50 rounded-full text-sm text-slate-300 border border-slate-600">
-                    Tailwind CSS
-                  </span>
-                  <span className="px-3 py-1 bg-slate-700/50 rounded-full text-sm text-slate-300 border border-slate-600">
-                    HeroUI
-                  </span>
-                  <span className="px-3 py-1 bg-slate-700/50 rounded-full text-sm text-slate-300 border border-slate-600">
-                    Framer Motion
-                  </span>
-                </div>
-              </div>
+            <Section title="Contributors">
+              <Credit name="TheHypeWalrus" role="Testing" />
+            </Section>
 
-              <div className="pt-4 border-t border-slate-700">
-                <p className="text-sm text-slate-400 text-center">
-                  Version {version}
-                </p>
+            <Section title="Built With">
+              <div className="flex flex-wrap gap-2">
+                {TECH.map(t => (
+                  <span
+                    key={t}
+                    className="px-2.5 py-1 bg-zinc-900 border border-zinc-800 rounded-md text-xs text-zinc-400"
+                  >
+                    {t}
+                  </span>
+                ))}
               </div>
-            </CardContent>
-          </Card>
+            </Section>
+          </div>
+
+          <p className="text-center text-zinc-700 text-xs">Version {version}</p>
         </motion.div>
-
-        {/* Back Button */}
-        <Button
-          onPress={() => navigate(-1)}
-          className="w-full bg-linear-to-r from-gray-600 to-zinc-700 hover:opacity-90 transition text-white font-semibold flex shadow-xl rounded-xl cursor-pointer"
-          size="lg"
-        >
-          <ArrowLeftIcon size={20} weight="bold" />
-          Back
-        </Button>
       </div>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{title}</p>
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">{children}</div>
+    </div>
+  );
+}
+
+function Credit({ name, role }: { name: string; role?: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-sm font-medium text-zinc-200">{name}</span>
+      {role && <span className="text-xs text-zinc-500">{role}</span>}
     </div>
   );
 }

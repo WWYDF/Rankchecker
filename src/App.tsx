@@ -1,24 +1,25 @@
 import { useState } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { RankedQuery } from './types/odyssey';
+import { DebugConsole } from './components/DebugConsole';
 
 export interface AppContextType {
   playerData: RankedQuery[];
   setPlayerData: (data: RankedQuery[]) => void;
+  collectedPlayers: string[];
+  setCollectedPlayers: (players: string[]) => void;
   navigate: ReturnType<typeof useNavigate>;
 }
 
 function App() {
-  console.log('App component mounted');
   const [playerData, setPlayerData] = useState<RankedQuery[]>([]);
+  const [collectedPlayers, setCollectedPlayers] = useState<string[]>([]);
   const navigate = useNavigate();
-  const location = useLocation();
-
-  console.log('Current route:', location.pathname);
 
   return (
-    <div className="min-h-screen">
-      <Outlet context={{ playerData, setPlayerData, navigate }} />
+    <div className="min-h-screen bg-zinc-950 text-white">
+      <Outlet context={{ playerData, setPlayerData, collectedPlayers, setCollectedPlayers, navigate }} />
+      <DebugConsole />
     </div>
   );
 }
