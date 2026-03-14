@@ -60,7 +60,7 @@ export function GetStartedPage() {
           onClick={() => openUrl('https://github.com/WWYDF/Rankchecker')}
           className="hover:text-zinc-400 transition-colors cursor-pointer"
         >
-          v{version} by blals
+          v{version}
         </button>
       </motion.div>
     </div>
