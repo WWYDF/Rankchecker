@@ -1,7 +1,7 @@
-# Tauri + React + Typescript
+# RankChecker
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+This is a small little app for [Omega Strikers](https://store.steampowered.com/app/1869590/Omega_Strikers/) that monitors your game's log file and reports back the rank of everyone in your game using the official [Omega Strikers API](https://docs.clarioncorp.net/category/prometheus-proxy).
 
-## Recommended IDE Setup
+Just download and run the application, then queue for a game. It should automatically fetch upon entering. If it doesn't, [open an issue](https://github.com/WWYDF/Rankchecker/issues/new).
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+**This application is currently in development, expect bugs!**
