@@ -8,6 +8,7 @@ export type MatchPhase =
   | 'EMatchPhase::None'
   | 'EMatchPhase::BanSelect'
   | 'EMatchPhase::LoadoutSelect'
+  | 'EMatchPhase::CharacterSelect'
   | 'EMatchPhase::VersusScreen'
   | 'EMatchPhase::FaceOffIntro'
   | 'EMatchPhase::InGame'
@@ -57,11 +58,14 @@ export function parsePlayerRegistration(line: string): string | null {
 /** Read any new lines added since the last call, updating the shared offset.
  *  Throws if the file cannot be read - callers are responsible for handling errors. */
 export async function readNewLines(logPath: string): Promise<string[]> {
+  const before = performance.now();
+  logger.debug(`Checking for new lines...`);
   const content = await readTextFile(logPath);
   const lines = content.split('\n');
   const newLines = lines.slice(_lineOffset);
   if (newLines.length > 0) {
-    logger.debug(`Read ${newLines.length} new line(s) (offset ${_lineOffset} -> ${lines.length})`);
+    const diff = performance.now() - before;
+    logger.debug(`Read ${newLines.length} new line(s) (offset ${_lineOffset} -> ${lines.length}) [${diff.toFixed(1)} ms]`);
   }
   _lineOffset = lines.length;
   return newLines;

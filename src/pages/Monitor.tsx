@@ -17,6 +17,7 @@ const PHASE_LABELS: Record<MatchPhase, string> = {
   'EMatchPhase::None':                'Idle',
   'EMatchPhase::BanSelect':           'Ban Phase',
   'EMatchPhase::LoadoutSelect':       'Loadout Select',
+  'EMatchPhase::CharacterSelect':     'Character Select',
   'EMatchPhase::VersusScreen':        'Versus Screen',
   'EMatchPhase::FaceOffIntro':        'Face-Off Intro',
   'EMatchPhase::InGame':              'In Game',
@@ -25,100 +26,118 @@ const PHASE_LABELS: Record<MatchPhase, string> = {
   'EMatchPhase::PostGameCelebration': 'Post Game',
 };
 
+const ACTIVE_PHASES = new Set<MatchPhase>([
+  'EMatchPhase::BanSelect',
+  'EMatchPhase::LoadoutSelect',
+  'EMatchPhase::CharacterSelect',
+  'EMatchPhase::VersusScreen',
+  'EMatchPhase::FaceOffIntro',
+  'EMatchPhase::InGame',
+  'EMatchPhase::GoalScore',
+  'EMatchPhase::Intermission',
+]);
+
+const IDLE_INTERVAL_MS   = 5_000;
+const ACTIVE_INTERVAL_MS = 30_000;
+
 export function MonitorPage() {
   const { setCollectedPlayers, navigate } = useOutletContext<AppContextType>();
   const [phase, setPhase] = useState<MatchPhase | null>(null);
   const [foundPlayers, setFoundPlayers] = useState<string[]>([]);
   const [logError, setLogError] = useState<string | null>(null);
 
-  // Use refs so the interval closure always has fresh values
+  // Use refs so the timeout closure always has fresh values
   const collectingRef = useRef(false);
   const playersRef = useRef<Set<string>>(new Set());
   const navigatedRef = useRef(false);
+  const phaseRef = useRef<MatchPhase | null>(null);
 
   useEffect(() => {
-    let intervalId: ReturnType<typeof setInterval>;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
-    async function init() {
-      const path = await getLogPath();
+    async function tick(path: string) {
+      if (navigatedRef.current) return;
 
-      intervalId = setInterval(async () => {
-        if (navigatedRef.current) return;
+      let lines: string[];
+      try {
+        lines = await readNewLines(path);
+        setLogError(null);
+      } catch {
+        setLogError(path);
+        scheduleNext(path);
+        return;
+      }
 
-        let lines: string[];
-        try {
-          lines = await readNewLines(path);
-          // Clear any previous error once the file is readable again
-          setLogError(null);
-        } catch {
-          setLogError(path);
-          return;
-        }
+      for (const line of lines) {
+        const detectedPhase = parseMatchPhase(line);
+        if (detectedPhase) {
+          phaseRef.current = detectedPhase;
+          setPhase(detectedPhase);
 
-        for (const line of lines) {
-          const detectedPhase = parseMatchPhase(line);
-          if (detectedPhase) {
-            setPhase(detectedPhase);
+          if (detectedPhase === 'EMatchPhase::BanSelect') {
+            collectingRef.current = true;
+            playersRef.current = new Set();
+            setFoundPlayers([]);
+            logger.info('BanSelect detected - collection started');
+          }
 
-            if (detectedPhase === 'EMatchPhase::BanSelect') {
-              // New game starting - reset collection
+          if (detectedPhase === 'EMatchPhase::LoadoutSelect') {
+            if (!collectingRef.current) {
+              logger.warn('LoadoutSelect reached without BanSelect - starting collection as fallback');
               collectingRef.current = true;
               playersRef.current = new Set();
               setFoundPlayers([]);
-              logger.info('BanSelect detected - collection started');
+            } else {
+              logger.info('LoadoutSelect detected - still collecting players');
             }
+          }
 
-            if (detectedPhase === 'EMatchPhase::LoadoutSelect') {
-              if (!collectingRef.current) {
-                // Missed BanSelect (app started mid-game, or log gap) - start collecting now as fallback
-                logger.warn('LoadoutSelect reached without BanSelect - starting collection as fallback');
-                collectingRef.current = true;
-                playersRef.current = new Set();
-                setFoundPlayers([]);
-              } else {
-                logger.info('LoadoutSelect detected - still collecting players');
-              }
-            }
+          if (ACTIVE_PHASES.has(detectedPhase) && collectingRef.current) {
+            collectingRef.current = false;
+            navigatedRef.current = true;
+            logger.info(`${detectedPhase} detected with ${playersRef.current.size} player(s) - checking ranks`);
+            setCollectedPlayers([...playersRef.current]);
+            navigate('/loading');
+            return;
+          }
 
-            if (detectedPhase === 'EMatchPhase::VersusScreen' && collectingRef.current) {
-              // Registrations are done by now - proceed with however many we found
-              collectingRef.current = false;
+          if (detectedPhase === 'EMatchPhase::None') {
+            collectingRef.current = false;
+          }
+        }
+
+        if (collectingRef.current) {
+          const player = parsePlayerRegistration(line);
+          if (player && !playersRef.current.has(player)) {
+            playersRef.current.add(player);
+            setFoundPlayers([...playersRef.current]);
+
+            if (playersRef.current.size >= 6) {
               navigatedRef.current = true;
-              clearInterval(intervalId);
-              logger.info(`VersusScreen reached with ${playersRef.current.size} player(s) - navigating`);
               setCollectedPlayers([...playersRef.current]);
               navigate('/loading');
               return;
             }
-
-            if (detectedPhase === 'EMatchPhase::None') {
-              // Returned to lobby with no match detected yet
-              collectingRef.current = false;
-            }
-          }
-
-          if (collectingRef.current) {
-            const player = parsePlayerRegistration(line);
-            if (player && !playersRef.current.has(player)) {
-              playersRef.current.add(player);
-              setFoundPlayers([...playersRef.current]);
-
-              if (playersRef.current.size >= 6) {
-                // Fast path (All 6 found before VersusScreen)
-                navigatedRef.current = true;
-                clearInterval(intervalId);
-                setCollectedPlayers([...playersRef.current]);
-                navigate('/loading');
-                return;
-              }
-            }
           }
         }
-      }, 500);
+      }
+
+      scheduleNext(path);
+    }
+
+    function scheduleNext(path: string) {
+      const isActive = phaseRef.current !== null && ACTIVE_PHASES.has(phaseRef.current);
+      const delay = isActive ? ACTIVE_INTERVAL_MS : IDLE_INTERVAL_MS;
+      timeoutId = setTimeout(() => tick(path), delay);
+    }
+
+    async function init() {
+      const path = await getLogPath();
+      tick(path);
     }
 
     init();
-    return () => clearInterval(intervalId);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const isCollecting = foundPlayers.length > 0;
