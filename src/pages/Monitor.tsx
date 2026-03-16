@@ -38,7 +38,7 @@ const ACTIVE_PHASES = new Set<MatchPhase>([
 ]);
 
 const IDLE_INTERVAL_MS   = 5_000;
-const ACTIVE_INTERVAL_MS = 30_000;
+const ACTIVE_INTERVAL_MS = 15_000;
 
 export function MonitorPage() {
   const { setCollectedPlayers, navigate } = useOutletContext<AppContextType>();
@@ -53,10 +53,11 @@ export function MonitorPage() {
   const phaseRef = useRef<MatchPhase | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     let timeoutId: ReturnType<typeof setTimeout>;
 
     async function tick(path: string) {
-      if (navigatedRef.current) return;
+      if (cancelled || navigatedRef.current) return;
 
       let lines: string[];
       try {
@@ -126,6 +127,7 @@ export function MonitorPage() {
     }
 
     function scheduleNext(path: string) {
+      if (cancelled) return;
       const isActive = phaseRef.current !== null && ACTIVE_PHASES.has(phaseRef.current);
       const delay = isActive ? ACTIVE_INTERVAL_MS : IDLE_INTERVAL_MS;
       timeoutId = setTimeout(() => tick(path), delay);
@@ -133,11 +135,14 @@ export function MonitorPage() {
 
     async function init() {
       const path = await getLogPath();
-      tick(path);
+      if (!cancelled) tick(path);
     }
 
     init();
-    return () => clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const isCollecting = foundPlayers.length > 0;

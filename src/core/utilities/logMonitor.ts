@@ -1,6 +1,6 @@
 import { platform } from "@tauri-apps/plugin-os";
 import { homeDir, join } from "@tauri-apps/api/path";
-import { readTextFile } from "@tauri-apps/plugin-fs";
+import { invoke } from "@tauri-apps/api/core";
 import { windows_log, linux_log, macos_log } from "../constants";
 import { logger } from "../logger";
 
@@ -16,12 +16,14 @@ export type MatchPhase =
   | 'EMatchPhase::Intermission'
   | 'EMatchPhase::PostGameCelebration';
 
-// Shared line offset (Persists across page navigations without React state)
-let _lineOffset = 0;
+// Byte offset into the log file — persists across page navigations
+let _byteOffset = 0;
+// Buffer for any incomplete line fragment at the end of the last read
+let _partial = '';
 
 export const logState = {
-  get lineOffset() { return _lineOffset; },
-  set lineOffset(n: number) { _lineOffset = n; },
+  get byteOffset() { return _byteOffset; },
+  set byteOffset(n: number) { _byteOffset = n; },
 };
 
 export async function getLogPath(): Promise<string> {
@@ -55,30 +57,41 @@ export function parsePlayerRegistration(line: string): string | null {
   return match[1];
 }
 
-/** Read any new lines added since the last call, updating the shared offset.
- *  Throws if the file cannot be read - callers are responsible for handling errors. */
+/** Read only the bytes appended since the last call.
+ *  Throws if the file cannot be read — callers are responsible for handling errors. */
 export async function readNewLines(logPath: string): Promise<string[]> {
   const before = performance.now();
-  logger.debug(`Checking for new lines...`);
-  const content = await readTextFile(logPath);
-  const lines = content.split('\n');
-  const newLines = lines.slice(_lineOffset);
-  if (newLines.length > 0) {
-    const diff = performance.now() - before;
-    logger.debug(`Read ${newLines.length} new line(s) (offset ${_lineOffset} -> ${lines.length}) [${diff.toFixed(1)} ms]`);
-  }
-  _lineOffset = lines.length;
-  return newLines;
+  const [newContent, newOffset] = await invoke<[string, number]>('read_log_from', {
+    path: logPath,
+    offset: _byteOffset,
+  });
+
+  if (!newContent) return [];
+
+  _byteOffset = newOffset;
+
+  const text = _partial + newContent;
+  const parts = text.split('\n');
+  _partial = parts.pop() ?? '';
+
+  const diff = performance.now() - before;
+  logger.debug(`Read ${parts.length} new line(s) (${newContent.length} bytes) [${diff.toFixed(1)} ms]`);
+  return parts;
 }
 
 /** Seek to end of log so we only see events from this point forward. */
 export async function seekToEnd(logPath: string): Promise<void> {
   try {
-    const content = await readTextFile(logPath);
-    _lineOffset = content.split('\n').length;
-    logger.info(`Seeked to end of log (line ${_lineOffset})`);
+    const [, newOffset] = await invoke<[string, number]>('read_log_from', {
+      path: logPath,
+      offset: Number.MAX_SAFE_INTEGER,
+    });
+    _byteOffset = newOffset;
+    _partial = '';
+    logger.info(`Seeked to end of log (byte ${_byteOffset})`);
   } catch (e) {
-    _lineOffset = 0;
-    logger.warn('seekToEnd failed - Starting from line 0', e);
+    _byteOffset = 0;
+    _partial = '';
+    logger.warn('seekToEnd failed - starting from byte 0', e);
   }
 }
